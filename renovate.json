@@ -1,13 +1,19 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
   "extends": [
     "github>elastic/renovate-config:base",
     "github>elastic/renovate-config:ci-agent-images",
     ":disableDependencyDashboard"
   ],
+
   "schedule": [
     "after 1pm on tuesday"
   ],
+
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 5,
+
   "labels": [
     ">non-issue",
     ":Delivery/Packaging",
@@ -15,31 +21,35 @@
     "Team:Delivery",
     "auto-merge-without-approval"
   ],
+
   "baseBranches": [
     "main",
     "9.4",
     "9.3",
     "8.19"
   ],
+
   "packageRules": [
     {
       "description": "Don't manage dependencies by default",
-      "matchPackageNames": [
-        "*"
-      ],
+      "matchPackageNames": ["*"],
       "enabled": false
     },
     {
       "description": "Explicitly enable Elastic Docker updates",
-      "matchPackageNames": [
-        "/docker.elastic.co/.*/"
-      ],
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["^docker\\.elastic\\.co/"],
       "enabled": true
     },
     {
-      "description": "Gradle wrapper: one rolling PR per release train (e.g. 9.5.x patch lane and 9.6.x minor/RC lane), lockstep across all wrapper.properties files; manual fix commits preserved",
+      "description": "Gradle wrapper updates across all maintained branches",
       "matchManagers": ["gradle-wrapper"],
-      "matchBaseBranches": ["main"],
+      "matchBaseBranches": [
+        "main",
+        "9.4",
+        "9.3",
+        "8.19"
+      ],
       "enabled": true,
       "ignoreUnstable": false,
       "separateMinorPatch": true,
@@ -48,7 +58,11 @@
       "branchTopic": "gradle-wrapper-{{{newMajor}}}.{{{newMinor}}}.x",
       "commitMessageTopic": "Gradle wrapper {{{newMajor}}}.{{{newMinor}}}.x",
       "schedule": ["at any time"],
-      "labels": [":Delivery/Build", ">non-issue", "auto-backport"]
+      "labels": [
+        ":Delivery/Build",
+        ">non-issue",
+        "auto-backport"
+      ]
     }
   ]
 }
